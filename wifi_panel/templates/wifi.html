@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuração Wi-Fi - Gateway IoT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">Configuração Wi-Fi</h1>
+
+    <button 
+      id="btn-scan" 
+      class="mb-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+      onclick="scanNetworks()"
+    >
+      Atualizar redes
+    </button>
+
+    <form id="wifi-form" method="POST" action="/connect" class="space-y-4">
+      <div>
+        <label for="ssid" class="block text-sm font-medium text-gray-700 mb-1">Redes Disponíveis</label>
+        <select id="ssid" name="ssid" required class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+          <option value="">Seleciona uma rede</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha (se necessária)</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Digite a senha do Wi-Fi"
+          class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-500 text-white py-3 rounded-lg font-semibold"
+      >
+        Conectar Gateway
+      </button>
+    </form>
+
+    <div class="text-center mt-6 text-xs text-gray-500">
+      Gateway IoT Agrícola v1.0<br />
+      <span class="inline-flex items-center justify-center text-green-500">
+        <svg class="w-3 h-3 mr-1 animate-pulse" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" /></svg>
+        Sistema ativo
+      </span>
+    </div>
+  </div>
+
+  <script>
+async function scanNetworks() {
+  const select = document.getElementById('ssid');
+  select.innerHTML = '<option>Carregando redes...</option>';
+
+  try {
+    const res = await fetch('/scan_wifi');
+    const data = await res.json(); // ← primeiro extrair o objeto
+
+    if (!data.networks || data.networks.length === 0) {
+      select.innerHTML = '<option>Nenhuma rede encontrada</option>';
+      return;
+    }
+
+    select.innerHTML = '<option value="">Seleciona uma rede</option>';
+    data.networks.forEach(net => {
+      const option = document.createElement('option');
+      option.value = net.ssid;
+      option.textContent = `${net.ssid} (${net.quality || 'qualidade desconhecida'})`;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    select.innerHTML = '<option>Erro ao carregar redes</option>';
+  }
+}
+
+    // Faz scan automático quando carrega a página
+    window.onload = scanNetworks;
+  </script>
+</body>
+</html>

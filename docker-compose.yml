@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    container_name: mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  sensor_gateway:
+    build: ./sensor_gateway
+    container_name: sensor_gateway
+    environment:
+      API_URL: "http://13.48.48.4:3000"
+      API_TOKEN: "abc123supersecreto"
+      MQTT_BROKER: mqtt
+      MQTT_PORT: 1883
+    depends_on:
+      - mqtt
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  wifi_panel:
+    build: ./wifi_panel
+    ports:
+      - "5000:5000"
+    container_name: wifi_panel
+    network_mode: host
+    privileged: true
+    command: sh -c "python app.py & python watchdog.py"
+    volumes:
+      - /lib/modules:/lib/modules:ro
+      - /sys/class/net:/sys/class/net:ro
+      - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+    environment:
+      FLASK_ENV: development
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

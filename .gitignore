@@ -1,0 +1,32 @@
+# Ficheiros sensíveis
+.env
+
+# Mosquitto runtime
+mosquitto/data/
+mosquitto/log/
+mosquitto/config/mosquitto.conf
+*.db
+*.log
+
+# Arquivos temporários
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Docker volumes
+*.sock
+
+# Logs do sistema
+*.log
+gateway.log
+
+# Ficheiros de build temporários
+node_modules/
+dist/
+build/

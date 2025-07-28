@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard IoT Gateway</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-indigo-50 min-h-screen p-6 flex flex-col items-center">
+  <div class="w-full max-w-3xl bg-white shadow-lg rounded-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold text-indigo-700 flex items-center gap-2">
+        <svg class="w-6 h-6 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M3 3a1 1 0 011-1h2a1 1 0 010 2H5v14h1a1 1 0 010 2H4a1 1 0 01-1-1V3zm12 0a1 1 0 00-1-1h-2a1 1 0 000 2h1v14h-1a1 1 0 000 2h2a1 1 0 001-1V3z" />
+        </svg>
+        Dashboard IoT Gateway
+      </h1>
+      <span class="text-sm text-green-600 font-medium bg-green-100 px-3 py-1 rounded-full animate-pulse">
+        ✅ Gateway ativo
+      </span>
+    </div>
+
+    <div class="border-t pt-4">
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">📄 Logs do sistema</h2>
+      <div class="bg-gray-100 rounded p-4 h-60 overflow-y-auto text-sm text-gray-800 font-mono shadow-inner" id="logs">
+        <p>[10:00] Sistema iniciado...</p>
+        <p>[10:01] Ligado ao Wi-Fi: MEO-XXXX</p>
+        <p>[10:02] Comunicação com sensores estabelecida.</p>
+        <p>[10:05] Temperatura recebida: 22.4ºC</p>
+        <p>[10:06] Humidade do solo: 41%</p>
+        <!-- Mais logs em tempo real aqui -->
+      </div>
+    </div>
+
+    <div class="mt-6 text-center text-sm text-gray-500">
+      Desenvolvido por Romão Filipe • v1.0
+    </div>
+  </div>
+</body>
+</html>
+<script>
+  async function atualizarLogs() {
+    try {
+      const res = await fetch('/logs');
+      const data = await res.json();
+      const logBox = document.getElementById("logs");
+
+      logBox.innerHTML = ""; // limpa logs atuais
+
+      data.logs.forEach(linha => {
+        const p = document.createElement("p");
+        p.textContent = linha.trim();
+        logBox.appendChild(p);
+      });
+
+      logBox.scrollTop = logBox.scrollHeight; // auto-scroll
+    } catch (err) {
+      console.error("Erro ao buscar logs:", err);
+    }
+  }
+
+  // Atualiza a cada 3 segundos
+  setInterval(atualizarLogs, 3000);
+  window.onload = atualizarLogs;
+</script>
